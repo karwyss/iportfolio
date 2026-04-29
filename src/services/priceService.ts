@@ -4,18 +4,28 @@ interface PriceData {
   changePercent24h: number;
 }
 
-const COINGECKO_IDS: { [key: string]: string } = {
-  'bitcoin': 'bitcoin',
-  'btc': 'bitcoin',
-  'ethereum': 'ethereum',
-  'eth': 'ethereum',
-  'solana': 'solana',
-  'sol': 'solana',
-  'cardano': 'cardano',
-  'ada': 'cardano',
-  'dogecoin': 'dogecoin',
-  'doge': 'dogecoin',
-};
+  const COINGECKO_IDS: { [key: string]: string } = {
+    'bitcoin': 'bitcoin',
+    'btc': 'bitcoin',
+    'ethereum': 'ethereum',
+    'eth': 'ethereum',
+    'solana': 'solana',
+    'sol': 'solana',
+    'cardano': 'cardano',
+    'ada': 'cardano',
+    'dogecoin': 'dogecoin',
+    'doge': 'dogecoin',
+    'polkadot': 'polkadot',
+    'dot': 'polkadot',
+    'avalanche': 'avalanche-2',
+    'avax': 'avalanche-2',
+    'chainlink': 'chainlink',
+    'link': 'chainlink',
+    'litecoin': 'litecoin',
+    'ltc': 'litecoin',
+    'ripple': 'ripple',
+    'xrp': 'ripple',
+  };
 
 export const priceService = {
   async fetchCryptoPrice(assetName: string): Promise<PriceData | null> {
@@ -51,8 +61,27 @@ export const priceService = {
       'tesla': 'TSLA',
       'tsla': 'TSLA',
       'amazon': 'AMZN',
+      'amzn': 'AMZN',
       'google': 'GOOGL',
+      'googl': 'GOOGL',
       'microsoft': 'MSFT',
+      'msft': 'MSFT',
+      'netflix': 'NFLX',
+      'nflx': 'NFLX',
+      'meta': 'META',
+      'facebook': 'META',
+      'fb': 'META',
+      'nvidia': 'NVDA',
+      'nvda': 'NVDA',
+      'amd': 'AMD',
+      'intel': 'INTC',
+      'intc': 'INTC',
+      'jp morgan': 'JPM',
+      'jpm': 'JPM',
+      'goldman sachs': 'GS',
+      'gs': 'GS',
+      'bank of america': 'BAC',
+      'bac': 'BAC',
     };
     
     const symbol = symbols[name];
