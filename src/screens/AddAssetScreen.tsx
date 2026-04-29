@@ -126,12 +126,12 @@ const AddAssetScreen: React.FC = () => {
                 }}
                 placeholder="np. Bitcoin, AAPL, ETH"
                 placeholderTextColor={COLORS.textSecondary}
-                autoCapitalize="words"
+                autoCapitalize="characters"
               />
               <TouchableOpacity
-                style={styles.fetchButton}
-                onPress={fetchCurrentPrice}
-                disabled={fetchingPrice}
+                style={[styles.fetchButton, fetchingPrice && styles.buttonDisabled]}
+                onPress={() => fetchCurrentPrice()}
+                disabled={fetchingPrice || !name.trim()}
               >
                 {fetchingPrice ? (
                   <ActivityIndicator size="small" color={COLORS.text} />
