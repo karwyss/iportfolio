@@ -46,7 +46,10 @@ const AddAssetScreen: React.FC = () => {
 
     setFetchingPrice(true);
     try {
+      console.log('Próbuję pobrać cenę dla:', name.trim());
       const priceData = await priceService.fetchPrice(name.trim());
+      console.log('Wynik:', priceData);
+      
       if (priceData) {
         const formattedPrice = priceData.currentPrice.toLocaleString('en-US', {
           minimumFractionDigits: 2,
@@ -54,10 +57,12 @@ const AddAssetScreen: React.FC = () => {
         });
         setPrice(formattedPrice.replace('.', ','));
         setCurrentPrice(priceData.currentPrice);
+        alert(`Pobrano cenę: $${priceData.currentPrice}`);
       } else {
-        alert('Nie udało się pobrać ceny. Wpisz ręcznie.');
+        alert(`Nie znam aktywa "${name.trim()}". Wpisz ręcznie.\n\nZnane: Bitcoin, Ethereum, SOL, Apple, Tesla, Amazon, Google, Microsoft, Netflix, Meta, Nvidia, AMD, Intel, JPMorgan, Goldman Sachs, BOA`);
       }
     } catch (error) {
+      console.error('Błąd:', error);
       alert('Problem z pobieraniem ceny');
     } finally {
       setFetchingPrice(false);
