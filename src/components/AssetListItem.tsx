@@ -37,7 +37,7 @@ const AssetListItem: React.FC<AssetListItemProps> = ({
         >
           <MaterialCommunityIcons
             name={iconName}
-            size={22}
+            size={18}
             color={asset.color || COLORS.primary}
           />
         </View>

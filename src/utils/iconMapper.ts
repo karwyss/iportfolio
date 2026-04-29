@@ -72,8 +72,10 @@ export const getAssetIconName = (assetName: string): string => {
 export const getAvailableIcons = (): string[] => {
   return [
     'bitcoin', 'ethereum', 'solana', 'cardano', 'dogecoin',
+    'polkadot', 'avalanche-2', 'chainlink', 'litecoin', 'ripple',
     'apple', 'car', 'amazon', 'google', 'microsoft',
+    'popcorn', 'facebook', 'chip', 'bank',
     'gold', 'silver', 'chart-line', 'chart-pie', 'chart-bar',
-    'cash', 'currency-usd', 'currency-eur', 'bank', 'trending-up'
+    'cash', 'currency-usd', 'currency-eur', 'trending-up'
   ];
 };
