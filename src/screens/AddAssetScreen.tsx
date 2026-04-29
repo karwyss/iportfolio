@@ -118,7 +118,7 @@ const AddAssetScreen: React.FC = () => {
             <Text style={styles.label}>Nazwa aktywa</Text>
             <View style={styles.inputWithButton}>
               <TextInput
-                style={styles.inputFlex}
+                style={[styles.input, styles.inputFlex]}
                 value={name}
                 onChangeText={(text) => {
                   setName(text);
@@ -300,6 +300,13 @@ const styles = StyleSheet.create({
   },
   inputFlex: {
     flex: 1,
+    backgroundColor: COLORS.inputBackground,
+    borderRadius: 12,
+    padding: 16,
+    color: COLORS.text,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   fetchButton: {
     backgroundColor: COLORS.primary,
@@ -308,6 +315,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     minWidth: 100,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   fetchButtonText: {
     color: COLORS.text,
