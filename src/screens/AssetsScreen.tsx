@@ -5,18 +5,21 @@ import {
   StyleSheet,
   FlatList,
   RefreshControl,
-  Alert,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Asset } from '../types';
 import { storageService } from '../services/storage';
 import { COLORS } from '../constants';
 import AssetListItem from '../components/AssetListItem';
+import ConfirmPopup from '../components/ConfirmPopup';
 
 const AssetsScreen: React.FC = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [totalValue, setTotalValue] = useState(0);
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const [assetToDelete, setAssetToDelete] = useState<Asset | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const loadAssets = useCallback(async () => {
     const data = await storageService.getAssets();
@@ -41,21 +44,29 @@ const AssetsScreen: React.FC = () => {
   }, [loadAssets]);
 
   const handleDelete = (asset: Asset) => {
-    Alert.alert(
-      'Usuń aktywo',
-      `Czy na pewno chcesz usunąć ${asset.name}?`,
-      [
-        { text: 'Anuluj', style: 'cancel' },
-        {
-          text: 'Usuń',
-          style: 'destructive',
-          onPress: async () => {
-            await storageService.deleteAsset(asset.id);
-            loadAssets();
-          },
-        },
-      ]
-    );
+    setAssetToDelete(asset);
+    setShowConfirmPopup(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!assetToDelete) return;
+    
+    setDeleteLoading(true);
+    try {
+      await storageService.deleteAsset(assetToDelete.id);
+      setShowConfirmPopup(false);
+      setAssetToDelete(null);
+      loadAssets();
+    } catch (error) {
+      console.error('Error deleting asset:', error);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowConfirmPopup(false);
+    setAssetToDelete(null);
   };
 
   const renderItem = ({ item }: { item: Asset }) => (
@@ -94,6 +105,17 @@ const AssetsScreen: React.FC = () => {
             </Text>
           </View>
         }
+      />
+
+      <ConfirmPopup
+        visible={showConfirmPopup}
+        title="Usuń aktywo"
+        message={`Czy na pewno chcesz usunąć ${assetToDelete?.name || 'to aktywo'}? Tej operacji nie można cofnąć.`}
+        confirmText="Usuń"
+        cancelText="Anuluj"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        loading={deleteLoading}
       />
     </View>
   );

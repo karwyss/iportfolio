@@ -1,23 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { storageService } from '../services/storage';
+import { priceService } from '../services/priceService';
 import { COLORS } from '../constants';
+import ModalPopup from '../components/ModalPopup';
 
 const AddAssetScreen: React.FC = () => {
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [fetchingPrice, setFetchingPrice] = useState(false);
+  const [currentPrice, setCurrentPrice] = useState<number | null>(null);
 
   const parseDecimal = (value: string): number => {
     return Number(value.replace(',', '.'));
@@ -33,9 +38,35 @@ const AddAssetScreen: React.FC = () => {
     setPrice(cleaned);
   };
 
+  const fetchCurrentPrice = async () => {
+    if (!name.trim()) {
+      alert('Wpisz najpierw nazwę aktywa');
+      return;
+    }
+
+    setFetchingPrice(true);
+    try {
+      const priceData = await priceService.fetchPrice(name.trim());
+      if (priceData) {
+        const formattedPrice = priceData.currentPrice.toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+        setPrice(formattedPrice.replace('.', ','));
+        setCurrentPrice(priceData.currentPrice);
+      } else {
+        alert('Nie udało się pobrać ceny. Wpisz ręcznie.');
+      }
+    } catch (error) {
+      alert('Problem z pobieraniem ceny');
+    } finally {
+      setFetchingPrice(false);
+    }
+  };
+
   const handleAddAsset = async () => {
     if (!name.trim()) {
-      Alert.alert('Błąd', 'Wprowadź nazwę aktywa');
+      alert('Wprowadź nazwę aktywa');
       return;
     }
     
@@ -43,11 +74,11 @@ const AddAssetScreen: React.FC = () => {
     const parsedPrice = parseDecimal(price);
     
     if (!quantity || isNaN(parsedQuantity) || parsedQuantity <= 0) {
-      Alert.alert('Błąd', 'Wprowadź poprawną ilość');
+      alert('Wprowadź poprawną ilość');
       return;
     }
     if (!price || isNaN(parsedPrice) || parsedPrice <= 0) {
-      Alert.alert('Błąd', 'Wprowadź poprawną cenę');
+      alert('Wprowadź poprawną cenę');
       return;
     }
 
@@ -58,18 +89,9 @@ const AddAssetScreen: React.FC = () => {
         quantity: parsedQuantity,
         price: parsedPrice,
       });
-      Alert.alert('Sukces', 'Aktywo zostało dodane!', [
-        {
-          text: 'OK',
-          onPress: () => {
-            setName('');
-            setQuantity('');
-            setPrice('');
-          },
-        },
-      ]);
+      setShowPopup(true);
     } catch (error) {
-      Alert.alert('Błąd', 'Nie udało się dodać aktywa');
+      alert('Nie udało się dodać aktywa');
     } finally {
       setLoading(false);
     }
@@ -94,14 +116,30 @@ const AddAssetScreen: React.FC = () => {
         <View style={styles.form}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Nazwa aktywa</Text>
-            <TextInput
-              style={styles.input}
-              value={name}
-              onChangeText={setName}
-              placeholder="np. Bitcoin, AAPL, ETH"
-              placeholderTextColor={COLORS.textSecondary}
-              autoCapitalize="words"
-            />
+            <View style={styles.inputWithButton}>
+              <TextInput
+                style={styles.inputFlex}
+                value={name}
+                onChangeText={(text) => {
+                  setName(text);
+                  setCurrentPrice(null);
+                }}
+                placeholder="np. Bitcoin, AAPL, ETH"
+                placeholderTextColor={COLORS.textSecondary}
+                autoCapitalize="words"
+              />
+              <TouchableOpacity
+                style={styles.fetchButton}
+                onPress={fetchCurrentPrice}
+                disabled={fetchingPrice}
+              >
+                {fetchingPrice ? (
+                  <ActivityIndicator size="small" color={COLORS.text} />
+                ) : (
+                  <Text style={styles.fetchButtonText}>Pobierz cenę</Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View style={styles.inputGroup}>
@@ -126,6 +164,14 @@ const AddAssetScreen: React.FC = () => {
               placeholderTextColor={COLORS.textSecondary}
               keyboardType="decimal-pad"
             />
+            {currentPrice !== null && (
+              <Text style={styles.priceInfo}>
+                Pobrana cena: ${currentPrice.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </Text>
+            )}
           </View>
 
           {quantity && price && !isNaN(parseDecimal(quantity)) && !isNaN(parseDecimal(price)) && (
@@ -152,6 +198,20 @@ const AddAssetScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <ModalPopup
+        visible={showPopup}
+        title="Sukces!"
+        message="Aktywo zostało dodane do portfela."
+        buttonText="OK"
+        onClose={() => {
+          setShowPopup(false);
+          setName('');
+          setQuantity('');
+          setPrice('');
+          setCurrentPrice(null);
+        }}
+      />
     </KeyboardAvoidingView>
   );
 };
@@ -232,6 +292,33 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     fontSize: 16,
     fontWeight: '600',
+  },
+  inputWithButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  inputFlex: {
+    flex: 1,
+  },
+  fetchButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderRadius: 12,
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  fetchButtonText: {
+    color: COLORS.text,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  priceInfo: {
+    color: COLORS.success,
+    fontSize: 13,
+    marginTop: 8,
+    fontWeight: '500',
   },
 });
 

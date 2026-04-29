@@ -6,7 +6,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+  "build": "vite build"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -29,7 +30,9 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
-    "typescript": "~5.9.2"
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "~5.9.2",
+    "vite": "^8.0.10"
   },
   "private": true
 }
