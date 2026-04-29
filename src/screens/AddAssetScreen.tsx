@@ -129,7 +129,7 @@ const AddAssetScreen: React.FC = () => {
                   setName(text);
                   setCurrentPrice(null);
                 }}
-                placeholder="np. Bitcoin, AAPL, ETH"
+                placeholder="np. Bitcoin, Ethereum, Solana, Cardano, Dogecoin, Apple, Tesla, Amazon, Google, Microsoft, Netflix, Meta, Nvidia, AMD, Intel, JPMorgan, Goldman Sachs, Bank of America"
                 placeholderTextColor={COLORS.textSecondary}
                 autoCapitalize="characters"
               />
@@ -153,7 +153,7 @@ const AddAssetScreen: React.FC = () => {
               style={styles.input}
               value={quantity}
               onChangeText={handleQuantityChange}
-              placeholder="np. 0,5 lub 1,25"
+              placeholder=""
               placeholderTextColor={COLORS.textSecondary}
               keyboardType="decimal-pad"
             />
@@ -165,7 +165,7 @@ const AddAssetScreen: React.FC = () => {
               style={styles.input}
               value={price}
               onChangeText={handlePriceChange}
-              placeholder="np. 50 000 lub 43500"
+              placeholder=""
               placeholderTextColor={COLORS.textSecondary}
               keyboardType="decimal-pad"
             />
